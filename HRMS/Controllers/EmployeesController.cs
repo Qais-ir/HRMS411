@@ -104,7 +104,7 @@ namespace HRMS.Controllers
             employee.IsActive = updatedEmployee.IsActive;
             employee.StartDate = updatedEmployee.StartDate;
             employee.EndDate = updatedEmployee.EndDate;
-            //employee.Salary = updatedEmployee.Salary;
+            employee.Salary = updatedEmployee.Salary;
 
 
             return Ok();
