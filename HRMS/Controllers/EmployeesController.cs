@@ -1,7 +1,9 @@
-﻿using HRMS.Dtos.Employees;
+﻿using HRMS.DbContexts;
+using HRMS.Dtos.Employees;
 using HRMS.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Controllers
 {
@@ -17,14 +19,28 @@ namespace HRMS.Controllers
             new Employee(){ Id = 2, FirstName = "Layla", LastName = "Kareem", Email = "Layla@123.com", Position = "HR", BirthDate = new DateTime(200,1,25), PhoneNumber = "+9625588625", IsActive = true, StartDate = new DateTime(2026, 1, 1), Salary = 100},
             new Employee(){ Id = 3, FirstName = "Yousef", LastName = "Faris", Email = "Yousef@123.com", Position = "Manager", BirthDate = new DateTime(1996,1,25), PhoneNumber = "+9625588625", IsActive = true, StartDate = new DateTime(2026, 1, 1), Salary = 1200},
             new Employee(){ Id = 4, FirstName = "Nadia", LastName = "Zaid", Email = "Nadia@123.com", Position = "Developer", BirthDate = new DateTime(1999,1,25), PhoneNumber = "+9625588625", IsActive = true, StartDate = new DateTime(2026, 1, 1), Salary = 800}
-        }; 
+        };
+
+
+
+        // Dependency Injection
+        public readonly HRMSContext _dbContext;
+
+        public EmployeesController(HRMSContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
         // Endpoints --> Methods
         // CRUD Operations : Create, Read, Update, Delete
         [HttpGet("GetByCriteria")]
         public IActionResult GetByCriteria([FromQuery] string? position)
         {
             // Query Syntax
-            var data = from emp in employees
+            var data = from emp in _dbContext.Employees
+                       from dep in _dbContext.Departments.Where(x => x.Id == emp.DepartmentId).DefaultIfEmpty() // Left Join
+                       from man in _dbContext.Employees.Where(x => x.Id == emp.ManagerId).DefaultIfEmpty()
                        where (position == null || emp.Position == position)
                        orderby emp.Id descending
                        select new EmployeeDto // DTO : Data Transfer Object
@@ -36,7 +52,11 @@ namespace HRMS.Controllers
                            Position = emp.Position,
                            BirthDate = emp.BirthDate,
                            StartDate = emp.StartDate,
-                           EndDate = emp.EndDate
+                           EndDate = emp.EndDate,
+                           DepartmentId = dep.Id,
+                           DepartmentName = dep.Name,
+                           ManagerId = emp.ManagerId,
+                           ManagerName = man.FirstName
                        };
 
             return Ok(data);
