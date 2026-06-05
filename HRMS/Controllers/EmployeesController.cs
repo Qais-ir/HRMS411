@@ -83,10 +83,13 @@ namespace HRMS.Controllers
                 StartDate = x.StartDate,
                 EndDate = x.EndDate,
                 DepartmentId = x.DepartmentId,
-                DepartmentName = "",
+                DepartmentName = x.Department.Name,
                 ManagerId = x.ManagerId,
-                ManagerName = ""
+                ManagerName = x.Manager.FirstName,
             }).FirstOrDefault(x => x.Id == id);
+
+            //var data = _dbContext.Employees.Include(x => x.Department).Include(x => x.Manager).FirstOrDefault(x => x.Id == id);
+
 
             if (data == null)
             {
@@ -95,6 +98,9 @@ namespace HRMS.Controllers
 
             return Ok(data);
         }
+        // Include --> Eager Loading
+        // Select --> Projection
+        // Lazy Loading --> ??
 
         [HttpPost]
         public IActionResult Add([FromBody] SaveEmployeeDto newEmployee)
