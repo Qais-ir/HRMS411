@@ -1,6 +1,9 @@
 
 using HRMS.DbContexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace HRMS
 {
@@ -18,6 +21,19 @@ namespace HRMS
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var key = Encoding.UTF8.GetBytes("WHAFWEI#!@S!!112312WQEQW@RWQEQW432"); // Define the secret key
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false, // The Source Where The Token Is Issued
+                    ValidateAudience = false, // The Users Whome Can Use This Token
+                    ValidateIssuerSigningKey = true, // Make Sure That The Token Is Using My Secret Key
+                    IssuerSigningKey = new SymmetricSecurityKey(key), // Generate The Token Using Our Key
+                };
+            });
 
             // Global Object (HRMSContext)
             builder.Services.AddDbContext<HRMSContext>(options => 
@@ -37,7 +53,8 @@ namespace HRMS
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthentication(); // middleware
+            app.UseAuthorization(); // middleware
 
 
             app.MapControllers();
