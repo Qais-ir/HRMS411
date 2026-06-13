@@ -1,103 +1,169 @@
-﻿using HRMS.Dtos.Departments;
+﻿using HRMS.DbContexts;
+using HRMS.Dtos.Departments;
 using HRMS.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DepartmentsController : ControllerBase
     {
-        public static List<Department> departments = new List<Department>()
+        private readonly HRMSContext _dbContext;
+        public DepartmentsController(HRMSContext dbContext)
         {
-            new Department(){Id = 1, Name = "Human Resources", Description = "HR Department", FloorNumber = 1},
-            new Department(){Id = 2, Name = "Finance", Description = "Finance Department", FloorNumber = 2},
-            new Department(){Id = 3, Name = "Development", Description = "Development Department", FloorNumber = 1}
-        };
+            _dbContext = dbContext;
+        }
 
         [HttpGet("GetByCriteria")]
-        public IActionResult GetByCriteria(string? name, int? floorNumber) // name = Human Resources, floorNumber = 2
+        public IActionResult GetByCriteria([FromQuery] SearchDepartmentDto departmentDto)
         {
+            try
+            {
+                var result = from department in _dbContext.Departments
+                             from type in _dbContext.Lookups.Where(x => x.Id == department.TypeId).DefaultIfEmpty()
+                             where (departmentDto.Name == null || department.Name.ToUpper().Contains(departmentDto.Name.ToUpper())) &&
+                             (departmentDto.FloorNumber == null || department.FloorNumber == departmentDto.FloorNumber)
+                             orderby department.Id descending
+                             select new DepartmentDto
+                             {
+                                 Id = department.Id,
+                                 Name = department.Name,
+                                 Description = department.Description,
+                                 FloorNumber = department.FloorNumber,
+                                 TypeId = department.TypeId,
+                                 TypeName = type.Name
+                             };
 
-            var data = from dep in departments
-                       where (name == null || dep.Name.Contains(name, StringComparison.OrdinalIgnoreCase)) && (floorNumber == null || dep.FloorNumber == floorNumber)
-                       orderby dep.Id descending
-                       select new DepartmentDto
-                       {
-                           Id = dep.Id,
-                           Name = dep.Name,
-                           Description = dep.Description,
-                           FloorNumber = dep.FloorNumber
-                       };
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
 
-            return Ok(data);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(long id)
         {
-            var department = departments.Select(x => new DepartmentDto
+            try
             {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                FloorNumber = x.FloorNumber
-            }).FirstOrDefault(x => x.Id == id);
+                var department = _dbContext.Departments.Select(x => new DepartmentDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    FloorNumber = x.FloorNumber,
+                    TypeId = x.TypeId,
+                    TypeName = x.Type.Name
+                }).FirstOrDefault(x => x.Id == id);
 
-            if(department == null)
+                if (department == null)
+                {
+                    return NotFound("Department Not Found"); // 404
+                }
+
+                return Ok(department); // 200
+            }
+            catch (Exception ex)
             {
-                return NotFound("Department Not Found");
+                return StatusCode(500, ex.Message);
             }
 
-            return Ok(department);
+
         }
 
+        [Authorize(Roles = "Admin,HR")] // 403
         [HttpPost]
         public IActionResult Add([FromBody] SaveDepartmentDto departmentDto)
         {
-            var department = new Department
+            try
             {
-                Id = (departments.LastOrDefault()?.Id ?? 0) + 1,
-                Name = departmentDto.Name,
-                Description = departmentDto.Description,
-                FloorNumber = departmentDto.FloorNumber
-            };
+                var department = new Department
+                {
+                    Id = 0, // departments.LastOrDefault()?.Id == null ? 0 : departments.LastOrDefault()?.Id
+                    Name = departmentDto.Name,
+                    Description = departmentDto.Description,
+                    FloorNumber = departmentDto.FloorNumber,
+                    TypeId = departmentDto.TypeId
+                };
 
-            departments.Add(department);
+                _dbContext.Departments.Add(department);
+                _dbContext.SaveChanges();
 
-            return Ok(department.Id);
+                return Ok(department.Id);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
 
+        [Authorize(Roles = "Admin,HR")]
         [HttpPut]
         public IActionResult Update([FromBody] SaveDepartmentDto departmentDto)
         {
-            var department = departments.FirstOrDefault(x => x.Id == departmentDto.Id);
-
-            if(department == null)
+            try
             {
-                return NotFound("Department Does Not Exist");
+                var department = _dbContext.Departments.FirstOrDefault(x => x.Id == departmentDto.Id);
+
+
+                if (department == null)
+                {
+                    return NotFound("Department Does Not Exisit");
+                }
+
+                department.Name = departmentDto.Name;
+                department.Description = departmentDto.Description;
+                department.FloorNumber = departmentDto.FloorNumber;
+                department.TypeId = departmentDto.TypeId;
+
+                _dbContext.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
 
-            department.Name = departmentDto.Name;
-            department.Description = departmentDto.Description;
-            department.FloorNumber = departmentDto.FloorNumber;
-
-            return Ok();
         }
 
+        [Authorize(Roles = "Admin,HR")]
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
-            var department = departments.FirstOrDefault(x => x.Id == id);
-
-            if (department == null)
+            try
             {
-                return NotFound("Department Does Not Exist");
+                var department = _dbContext.Departments.FirstOrDefault(x => x.Id == id);
+
+                if (department == null)
+                {
+                    return NotFound("Department Does Not Exisit");
+                }
+
+                var isEmployee = _dbContext.Employees.Any(x => x.DepartmentId == id);
+                if (isEmployee)
+                {
+                    return BadRequest("Department with assigned employees can not be deleted");
+                }
+
+                _dbContext.Departments.Remove(department);
+                _dbContext.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
 
-            departments.Remove(department);
-            return Ok();
         }
+
     }
 }
+
