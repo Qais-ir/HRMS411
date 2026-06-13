@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HRMS.Controllers
 {
@@ -32,6 +33,10 @@ namespace HRMS.Controllers
         {
             try
             {
+                // Extract From Token : Role + UserId
+                var role = User.FindFirst(ClaimTypes.Role)?.Value; // Admin, HR, Developer....
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 // Query Syntax
                 var data = from emp in _dbContext.Employees
                            from dep in _dbContext.Departments.Where(x => x.Id == emp.DepartmentId).DefaultIfEmpty() // Left Join
@@ -54,8 +59,15 @@ namespace HRMS.Controllers
                                DepartmentId = dep.Id,
                                DepartmentName = dep.Name,
                                ManagerId = emp.ManagerId,
-                               ManagerName = man.FirstName
+                               ManagerName = man.FirstName,
+                               UserId = emp.UserId
                            };
+
+                // Filteration Based On User Role
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    data = data.Where(x => x.UserId == long.Parse(userId));
+                }
 
                 return Ok(data);
             }
@@ -125,11 +137,21 @@ namespace HRMS.Controllers
         // Select --> Projection
         // Lazy Loading --> ??
 
+        [Authorize(Roles = "HR,Admin")]
         [HttpPost]
         public IActionResult Add([FromBody] SaveEmployeeDto newEmployee)
         {
             try
             {
+                var user = new User()
+                {
+                    Id = 0,
+                    Username = $"{newEmployee.FirstName}_{newEmployee.LastName}_HRMS", // Ahmad Nasser --> Ahmad_Nasser_HRMS
+                    HashedPassword = BCrypt.Net.BCrypt.HashPassword($"{newEmployee.FirstName}@123"), // Ahamd ==> Ahmad@123
+                    IsAdmin = false
+                };
+                _dbContext.Users.Add(user);
+
                 var employee = new Employee()
                 {
                     Id = 0, //(employees.LastOrDefault()?.Id ?? 0) + 1,
@@ -145,6 +167,8 @@ namespace HRMS.Controllers
                     Salary = newEmployee.Salary,
                     DepartmentId = newEmployee.DepartmentId,
                     ManagerId = newEmployee.ManagerId,
+                    //UserId = user.Id
+                    User = user
                 };
 
                 _dbContext.Employees.Add(employee);
@@ -160,7 +184,7 @@ namespace HRMS.Controllers
 
 
         }
-
+        [Authorize(Roles = "HR,Admin")]
         [HttpPut]
         public IActionResult Update([FromBody] SaveEmployeeDto updatedEmployee)
         {
@@ -195,6 +219,7 @@ namespace HRMS.Controllers
             }
         }
 
+        [Authorize(Roles = "HR,Admin")]
         [HttpDelete("{id}")] // Route Parameter
         public IActionResult Delete(long id)
         {
