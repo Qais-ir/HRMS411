@@ -1,0 +1,62 @@
+<!-- <div class="title">
+  Title : {{title}}
+</div>
+
+<div class="title">
+  Number : {{number}}
+</div>
+
+<div class="title">
+  Boolean : {{bool}}
+</div>
+
+<div class="title">
+  Array : {{arr}}
+</div> -->
+
+<!-- Directives -->
+ <!-- Sturctural Directives : ngFor, ngIf -->
+  <!-- Attribute Directives : ngClass, ngStyle, ngModel -->
+<!-- <div>Before Angular 17</div>
+<div *ngFor="let stu of students; index as i">
+  <span>{{i + 1}}. </span>
+  <span style="margin-right: 5px;" [ngClass]="{'passed': stu.mark > 50, 'failed': stu.mark <= 50}">{{stu.name}}</span>
+  <span style="margin-right: 5px;" [ngStyle]="{'color': stu.mark > 50 ? 'green' : 'red'}">{{stu.mark}}%</span>
+  <span *ngIf="stu.mark > 50">Passed</span>
+  <span *ngIf="stu.mark <= 50">Failed</span>
+</div>
+
+<br/>
+<br/>
+<br/> -->
+<!-- Template Syntax -->
+<!-- <div>After Angular 17</div>
+@for(stu of students; track stu.id; let i = $index){
+  <div>
+    <span>{{i + 1}}. </span>
+     <span style="margin-right: 5px;" [class.passed]="stu.mark > 50" [class.failed]="stu.mark <= 50">{{stu.name}}</span> 
+    <span style="margin-right: 5px;" [class]="stu.mark > 50 ? 'passed' : 'failed'">{{stu.name}}</span>
+    <span style="margin-right: 5px;" [style.color]="stu.mark > 50 ? 'green' : 'red'">{{stu.mark}}%</span>
+    @if(stu.mark > 50){
+      <span>Passed</span>
+    }
+    @else {
+      <span>Failed</span>
+    }
+  </div>
+} -->
+
+
+<!-- Data Binding -->
+ <!-- Input => [] , Output => () -->
+
+<div style="margin: 40px;">
+
+  <img width="50%" height="50%" id="image"
+   [src]="images[currentIndex]"
+   alt="random-image">
+
+   <br>
+   <button type="button" id="previous" [disabled]="currentIndex == 0" (click)="previous()">Previous</button>
+   <button type="button" id="next" [disabled]="currentIndex == images.length - 1" (click)="next()">Next</button>
+</div>
