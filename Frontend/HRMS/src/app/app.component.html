@@ -48,9 +48,9 @@
 
 
 <!-- Data Binding -->
- <!-- Input => [] , Output => () -->
-
-<div style="margin: 40px;">
+<!-- Input => [] , Output => () -->
+<!-- One Way Data Binding -->
+<!-- <div style="margin: 40px;">
 
   <img width="50%" height="50%" id="image"
    [src]="images[currentIndex]"
@@ -59,4 +59,57 @@
    <br>
    <button type="button" id="previous" [disabled]="currentIndex == 0" (click)="previous()">Previous</button>
    <button type="button" id="next" [disabled]="currentIndex == images.length - 1" (click)="next()">Next</button>
+</div> -->
+
+
+<!-- Data Binding -->
+<!-- Input => [] , Output => () -->
+<!-- Two Way Data Binding -->
+
+<div style="margin:40px;">
+  <form [formGroup]="form">
+    <div>
+      <input type="text" formControlName="name">
+    </div>
+     <div>
+      <input type="email" formControlName="email" 
+      [class.required-input]="form.get('email')?.invalid && form.get('email')?.touched">
+    </div>
+     <div>
+      <input type="number" formControlName="age">
+    </div>
+  </form>
+</div>
+
+<div>
+  <button type="button" [disabled]="form.invalid">Submit</button>
+  <button type="button" (click)="resetForm()">Clear From</button>
+</div>
+<!-- 
+<div class="title">
+  {{form.value.name}}
+</div>
+<div class="title">
+  {{form.value.email}}
+</div>
+<div class="title">
+  {{form.value.age}}
+</div> -->
+
+
+<!-- Pipes -->
+<div>
+  Price : {{price | currency:'USD' }}
+</div>
+<div>
+  Price : {{price }}
+</div>
+<div>
+  Name : {{'My Name' | lowercase}}
+</div>
+<div>
+  Name : {{'My Name' | uppercase}}
+</div>
+<div>
+  Date : {{creationDate | date:'dd/MM/yyyy - hh:mm'}}
 </div>

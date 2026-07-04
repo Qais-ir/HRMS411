@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgIf, NgFor, NgClass, NgStyle } from '@angular/common'; // Dirctive
+import { FormsModule, FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgIf, NgFor, NgClass, NgStyle],
+  // Module, component, dirctive, pipes
+  imports: [RouterOutlet, NgIf, NgFor, NgClass, NgStyle, FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -31,6 +34,17 @@ export class AppComponent {
   // Gloabl Variable
   currentIndex : number = 0;
 
+  name: string = "My Name";
+
+  form = new FormGroup({ // Valid, Invalid
+    name: new FormControl("My Name", Validators.required),
+    email: new FormControl(null, [Validators.required, Validators.email]),
+    age: new FormControl(26, [Validators.min(20), Validators.max(30)])
+  });
+
+  price: number = 1121155.15;
+  creationDate = new Date();
+
   next(){
     // Local Variable
     let index = 0;
@@ -44,6 +58,12 @@ export class AppComponent {
     if(this.currentIndex > 0){
       this.currentIndex--;
     }
+  }
+
+  resetForm(){
+    this.form.reset({
+      email: null
+    });
   }
 
 }

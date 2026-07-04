@@ -12,3 +12,7 @@
     font-weight: 600;
     color: red;
 }
+
+.required-input{
+    border: 1px solid red;
+}
