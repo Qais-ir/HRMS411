@@ -1,115 +1,30 @@
-<!-- <div class="title">
-  Title : {{title}}
-</div>
+<nav class="navbar navbar-expand-lg bg-body-tertiary mb-2" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">HRMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page"
+                        href="#">Employees</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " aria-current="page"
+                        href="#">Departments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " aria-current="page"
+                        href="#">Vacations</a>
+                </li>
 
-<div class="title">
-  Number : {{number}}
-</div>
+            </ul>
 
-<div class="title">
-  Boolean : {{bool}}
-</div>
-
-<div class="title">
-  Array : {{arr}}
-</div> -->
-
-<!-- Directives -->
- <!-- Sturctural Directives : ngFor, ngIf -->
-  <!-- Attribute Directives : ngClass, ngStyle, ngModel -->
-<!-- <div>Before Angular 17</div>
-<div *ngFor="let stu of students; index as i">
-  <span>{{i + 1}}. </span>
-  <span style="margin-right: 5px;" [ngClass]="{'passed': stu.mark > 50, 'failed': stu.mark <= 50}">{{stu.name}}</span>
-  <span style="margin-right: 5px;" [ngStyle]="{'color': stu.mark > 50 ? 'green' : 'red'}">{{stu.mark}}%</span>
-  <span *ngIf="stu.mark > 50">Passed</span>
-  <span *ngIf="stu.mark <= 50">Failed</span>
-</div>
-
-<br/>
-<br/>
-<br/> -->
-<!-- Template Syntax -->
-<!-- <div>After Angular 17</div>
-@for(stu of students; track stu.id; let i = $index){
-  <div>
-    <span>{{i + 1}}. </span>
-     <span style="margin-right: 5px;" [class.passed]="stu.mark > 50" [class.failed]="stu.mark <= 50">{{stu.name}}</span> 
-    <span style="margin-right: 5px;" [class]="stu.mark > 50 ? 'passed' : 'failed'">{{stu.name}}</span>
-    <span style="margin-right: 5px;" [style.color]="stu.mark > 50 ? 'green' : 'red'">{{stu.mark}}%</span>
-    @if(stu.mark > 50){
-      <span>Passed</span>
-    }
-    @else {
-      <span>Failed</span>
-    }
-  </div>
-} -->
-
-
-<!-- Data Binding -->
-<!-- Input => [] , Output => () -->
-<!-- One Way Data Binding -->
-<!-- <div style="margin: 40px;">
-
-  <img width="50%" height="50%" id="image"
-   [src]="images[currentIndex]"
-   alt="random-image">
-
-   <br>
-   <button type="button" id="previous" [disabled]="currentIndex == 0" (click)="previous()">Previous</button>
-   <button type="button" id="next" [disabled]="currentIndex == images.length - 1" (click)="next()">Next</button>
-</div> -->
-
-
-<!-- Data Binding -->
-<!-- Input => [] , Output => () -->
-<!-- Two Way Data Binding -->
-
-<div style="margin:40px;">
-  <form [formGroup]="form">
-    <div>
-      <input type="text" formControlName="name">
+        </div>
     </div>
-     <div>
-      <input type="email" formControlName="email" 
-      [class.required-input]="form.get('email')?.invalid && form.get('email')?.touched">
-    </div>
-     <div>
-      <input type="number" formControlName="age">
-    </div>
-  </form>
-</div>
-
-<div>
-  <button type="button" [disabled]="form.invalid">Submit</button>
-  <button type="button" (click)="resetForm()">Clear From</button>
-</div>
-<!-- 
-<div class="title">
-  {{form.value.name}}
-</div>
-<div class="title">
-  {{form.value.email}}
-</div>
-<div class="title">
-  {{form.value.age}}
-</div> -->
-
-
-<!-- Pipes -->
-<div>
-  Price : {{price | currency:'USD' }}
-</div>
-<div>
-  Price : {{price }}
-</div>
-<div>
-  Name : {{'My Name' | lowercase}}
-</div>
-<div>
-  Name : {{'My Name' | uppercase}}
-</div>
-<div>
-  Date : {{creationDate | date:'dd/MM/yyyy - hh:mm'}}
-</div>
+</nav>
+<app-employees></app-employees>
