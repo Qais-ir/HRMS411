@@ -2,10 +2,10 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Employee } from '../../interfaces/employee.interface';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { first, last } from 'rxjs';
+import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-employees',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgxPaginationModule],
   providers: [DatePipe],
   templateUrl: './employees.component.html',
   styleUrl: './employees.component.css'
@@ -18,6 +18,7 @@ export class EmployeesComponent {
 
   // document.getElementById('closeMdoal');
   @ViewChild('closeModal') closeModal: ElementRef | undefined;
+  paginationConfig = {itemsPerPage: 5, currentPage: 1};
 
   employees: Employee[] = [
     {
@@ -44,7 +45,62 @@ export class EmployeesComponent {
       id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
       positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
       managerId: 2, managerName: "Emp 2"
-    }
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
+    {
+      id: 5, firstName: "Emp", lastName: "5", birthdate: new Date(2001, 11, 25), email: 'Emp5@gmail.com', salary: 800, isActive: true,
+      positionId: 2, positionName: 'HR', departmentId: 2, departmentName: 'HR', userId: 5,
+      managerId: 2, managerName: "Emp 2"
+    },
 
   ];
 
@@ -180,6 +236,10 @@ export class EmployeesComponent {
   removeEmployee(id : number){
     let index = this.employees.findIndex(x => x.id == id);
     this.employees.splice(index, 1);
+  }
+
+  changePage(pageNumber : number){
+    this.paginationConfig.currentPage = pageNumber;
   }
 }
 

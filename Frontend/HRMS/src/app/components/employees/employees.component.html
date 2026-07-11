@@ -60,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          @for(employee of employees; track employee.id){
+          @for(employee of employees | paginate: paginationConfig; track employee.id){
           <tr>
             <td>{{employee.firstName}} {{employee.lastName}}</td>
             <td>{{employee.positionName}}</td>
@@ -93,6 +93,8 @@
           }
         </tbody>
       </table>
+      <pagination-controls (pageChange)="changePage($event)"
+      class="text-end mt-2"></pagination-controls>
     </div>
   </div>
 
