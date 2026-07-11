@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace HRMS.Controllers
 {
     // Data Annotations --> Extra Information
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")] // [controller] --> api/Employees
     [ApiController]
     public class EmployeesController : ControllerBase
@@ -48,8 +48,8 @@ namespace HRMS.Controllers
                            select new EmployeeDto // DTO : Data Transfer Object
                            {
                                Id = emp.Id,
-                               // FirstName = emp.FirstName,
-                               // LastName = emp.LastName,
+                               FirstName = emp.FirstName,
+                               LastName = emp.LastName,
                                Name = emp.FirstName + " " + emp.LastName,
                                PositionId = emp.PositionId,
                                PositionName = lookup.Name,
@@ -60,14 +60,17 @@ namespace HRMS.Controllers
                                DepartmentName = dep.Name,
                                ManagerId = emp.ManagerId,
                                ManagerName = man.FirstName,
-                               UserId = emp.UserId
+                               UserId = emp.UserId,
+                               Email = emp.Email,
+                               IsActive = emp.IsActive,
+                               Salary = emp.Salary,
                            };
 
                 // Filteration Based On User Role
-                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
-                {
-                    data = data.Where(x => x.UserId == long.Parse(userId));
-                }
+                //if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                //{
+                //    data = data.Where(x => x.UserId == long.Parse(userId));
+                //}
 
                 return Ok(data);
             }
@@ -137,7 +140,7 @@ namespace HRMS.Controllers
         // Select --> Projection
         // Lazy Loading --> ??
 
-        [Authorize(Roles = "HR,Admin")]
+        //[Authorize(Roles = "HR,Admin")]
         [HttpPost]
         public IActionResult Add([FromBody] SaveEmployeeDto newEmployee)
         {
@@ -184,7 +187,7 @@ namespace HRMS.Controllers
 
 
         }
-        [Authorize(Roles = "HR,Admin")]
+        //[Authorize(Roles = "HR,Admin")]
         [HttpPut]
         public IActionResult Update([FromBody] SaveEmployeeDto updatedEmployee)
         {
@@ -219,7 +222,7 @@ namespace HRMS.Controllers
             }
         }
 
-        [Authorize(Roles = "HR,Admin")]
+       // [Authorize(Roles = "HR,Admin")]
         [HttpDelete("{id}")] // Route Parameter
         public IActionResult Delete(long id)
         {
