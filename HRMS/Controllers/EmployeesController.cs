@@ -1,5 +1,7 @@
 ﻿using HRMS.DbContexts;
 using HRMS.Dtos.Employees;
+using HRMS.Dtos.Shared;
+using HRMS.Enums;
 using HRMS.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -133,7 +135,7 @@ namespace HRMS.Controllers
             {
                 return StatusCode(500, new Exception(ex.Message));
             }
-           
+
 
         }
         // Include --> Eager Loading
@@ -166,7 +168,7 @@ namespace HRMS.Controllers
                     EndDate = newEmployee.EndDate,
                     Email = newEmployee.Email,
                     IsActive = newEmployee.IsActive,
-                    PhoneNumber = newEmployee.PhoneNumber,
+                    PhoneNumber = newEmployee.Phone,
                     Salary = newEmployee.Salary,
                     DepartmentId = newEmployee.DepartmentId,
                     ManagerId = newEmployee.ManagerId,
@@ -211,6 +213,7 @@ namespace HRMS.Controllers
                 employee.Salary = updatedEmployee.Salary;
                 employee.DepartmentId = updatedEmployee.DepartmentId;
                 employee.ManagerId = updatedEmployee.ManagerId;
+                employee.PhoneNumber = updatedEmployee.Phone;
 
                 _dbContext.SaveChanges();
 
@@ -222,7 +225,7 @@ namespace HRMS.Controllers
             }
         }
 
-       // [Authorize(Roles = "HR,Admin")]
+        // [Authorize(Roles = "HR,Admin")]
         [HttpDelete("{id}")] // Route Parameter
         public IActionResult Delete(long id)
         {
@@ -247,21 +250,35 @@ namespace HRMS.Controllers
 
         }
 
-        //[HttpGet]
-        //public IActionResult Get()
-        //{
-        //    //return Ok(new { Name = "Ahmad", Age = 25 }); // Http Response : Data, 200 OK
-        //    //return NotFound("No Data Found"); // Http Response : Data, 404 Not Found
-        //    //return BadRequest("Data Not Loaded"); // Http Response : Data, 400 Bad Request
-        //    return StatusCode(500, "An Error Occurred");// Http Response : Data, 500 Intrenal Server Error
-        //}
+        [HttpGet("Managers")]
+        public IActionResult GetManagers([FromQuery] long? employeeId)
+        {
+            try
+            {
+                var data = from emp in _dbContext.Employees
+                           from pos in _dbContext.Lookups.Where(x => x.Id == emp.PositionId)
+                           where emp.IsActive &&
+                           pos.MajorCode == (int)LookupMajorCodes.EmployeePositions &&
+                           pos.MinorCode == (int)PositionsMinorCodes.Manager &&
+                           emp.Id != employeeId
+                           select new ListDto
+                           {
+                               Id = emp.Id,
+                               Name = emp.FirstName + " " + emp.LastName
+                           };
 
-        //[HttpPost]
-        //public IActionResult GetEmployee()
-        //{
-        //    return Ok();
-        //}
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new Exception(ex.Message));
+            }
+        }
+
     }
+
+
+ 
 }
 
 // Query Parameter => [FromQuery]

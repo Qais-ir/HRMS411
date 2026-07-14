@@ -4,7 +4,7 @@ export interface Employee{
   firstName : string;
   lastName : string;
   positionId: number;
-  positionName: string;
+  positionName?: string;
   birthdate?: Date;
   isActive: boolean;
   startDate?: Date;

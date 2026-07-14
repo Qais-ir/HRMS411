@@ -8,7 +8,7 @@
         public string Email { get; set; }
         public long? PositionId { get; set; }
         public DateTime BirthDate { get; set; }
-        public string PhoneNumber { get; set; }// 07, +962789
+        public string Phone { get; set; }// 07, +962789
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; } // Required
         public DateTime? EndDate { get; set; } // (?) => Opteinal / Nullable

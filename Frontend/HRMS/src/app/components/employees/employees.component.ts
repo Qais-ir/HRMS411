@@ -5,6 +5,10 @@ import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angula
 import { NgxPaginationModule } from 'ngx-pagination';
 import { HttpEmployeesService } from '../../services/http.employees.service';
 import { Observable } from 'rxjs';
+import { List } from '../../interfaces/list.interface';
+import { HttpDepartmentsService } from '../../services/http.departments.service';
+import { HttpLookupsService } from '../../services/http.lookups.service';
+import { MajorCodes } from '../../enums/lookup.enum';
 @Component({
   selector: 'app-employees',
   imports: [CommonModule, ReactiveFormsModule, NgxPaginationModule],
@@ -15,14 +19,16 @@ import { Observable } from 'rxjs';
 export class EmployeesComponent {
 
   constructor(private _datePipe: DatePipe,
-    private _employeesService : HttpEmployeesService
+    private _employeesService: HttpEmployeesService,
+    private _departmentsService: HttpDepartmentsService,
+    private _lookupsService: HttpLookupsService
   ) {
 
   }
 
   // document.getElementById('closeMdoal');
   @ViewChild('closeModal') closeModal: ElementRef | undefined;
-  paginationConfig = {itemsPerPage: 5, currentPage: 1};
+  paginationConfig = { itemsPerPage: 5, currentPage: 1 };
 
   employees: Employee[] = [];
 
@@ -39,24 +45,11 @@ export class EmployeesComponent {
   ];
 
 
-  departments = [
-    { id: null, name: "Select Department" },
-    { id: 1, name: "HR" },
-    { id: 2, name: "IT" }
-  ];
+  departments: List[] = [];
 
-  positions = [
-    { id: null, name: "Select Position" },
-    { id: 1, name: "Manager" },
-    { id: 2, name: "Developer" },
-    { id: 3, name: "HR" },
-  ];
+  positions: List[] = [];
 
-  managers = [
-    { id: null, name: "Select Manager" },
-    { id: 1, name: "Emp 1" },
-    { id: 2, name: "Emp 2" },
-  ];
+  managers: List[] = [];
 
   employeeForm: FormGroup = new FormGroup({
     id: new FormControl(null),
@@ -74,15 +67,81 @@ export class EmployeesComponent {
     isActive: new FormControl(false, [Validators.required]),
   });
 
-  loadEmployees(){
+  loadSaveDialog() {
+    this.resetForm();
+    this.loadManagersList();
+    this.loadDepartmentsList();
+    this.loadPositionsList();
+  }
+
+  loadManagersList(employeeId?: number) {
+    this.managers = [
+      { id: null, name: "Select Manager" }
+    ];
+
+    this._employeesService.getManagers(employeeId).subscribe({
+      next: (res: any) => {
+        if (res?.length > 0) {
+          res.forEach((x: any) => {
+            let manager: List = { id: x.id, name: x.name };
+            this.managers.push(manager);
+          })
+        }
+      },
+      error: err => {
+        console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+      }
+    })
+  }
+
+  loadDepartmentsList() {
+    this.departments = [
+      { id: null, name: "Select Department" }
+    ];
+
+    this._departmentsService.getDepartmentsList().subscribe({
+      next: (res: any) => {
+        if (res?.length > 0) {
+          res.forEach((x: any) => {
+            let department: List = { id: x.id, name: x.name };
+            this.departments.push(department);
+          })
+        }
+      },
+      error: err => {
+        console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+      }
+    })
+  }
+
+  loadPositionsList() {
+    this.positions = [
+      { id: null, name: "Select Position" }
+    ];
+
+    this._lookupsService.getByMajorCode(MajorCodes.Positions).subscribe({
+      next: (res: any) => {
+        if (res?.length > 0) {
+          res.forEach((x: any) => {
+            let position: List = { id: x.id, name: x.name };
+            this.positions.push(position);
+          })
+        }
+      },
+      error: err => {
+        console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+      }
+    })
+  }
+  loadEmployees() {
     this.employees = [];
     this._employeesService.getByCriteria().subscribe({
       // Successful : 200
-      next: (res : any) => {
-        if(res?.length > 0){
-          res.forEach((emp : any) => {
+      next: (res: any) => {
+        if (res?.length > 0) {
+          res.forEach((emp: any) => {
 
-            let employee : Employee = {
+            let employee: Employee = {
               id: emp.id,
               firstName: emp.firstName,
               lastName: emp.lastName,
@@ -102,7 +161,7 @@ export class EmployeesComponent {
             this.employees.push(employee);
           })
         }
-      }, 
+      },
       // Faild : 404, 400, 500, 401
       error: err => {
         console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
@@ -115,7 +174,7 @@ export class EmployeesComponent {
     // Add Employee
     if (!this.employeeForm.value.id) {
       let emp: Employee = {
-        id: (this.employees[this.employees.length - 1]?.id ?? 0) + 1,
+        id: 0,
         firstName: this.employeeForm.value.firstName,
         lastName: this.employeeForm.value.lastName,
         email: this.employeeForm.value.email,
@@ -125,18 +184,25 @@ export class EmployeesComponent {
         startDate: this.employeeForm.value.startDate,
         endDate: this.employeeForm.value.endDate,
         departmentId: this.employeeForm.value.departmentId,
-        departmentName: this.departments.find(x => x.id == this.employeeForm.value.departmentId)?.name,
         managerId: this.employeeForm.value.managerId,
-        managerName: this.managers.find(x => x.id == this.employeeForm.value.managerId)?.name,
         positionId: this.employeeForm.value.positionId,
-        positionName: this.positions.find(x => x.id == this.employeeForm.value.positionId)?.name ?? "",
         isActive: this.employeeForm.value.isActive
       };
 
-      this.employees.push(emp);
+      //this.employees.push(emp);
+      this._employeesService.add(emp).subscribe({
+        next: res => {
+          this.loadEmployees();
+          this.closeModal?.nativeElement.click();
+          this.resetForm();
+        },
+        // Faild : 404, 400, 500, 401
+        error: err => {
+          console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+        }
+      })
       // click close button => Dialog Close
-      this.closeModal?.nativeElement.click();
-      this.resetForm();
+
     }
     // update employee
     else {
@@ -156,7 +222,7 @@ export class EmployeesComponent {
       this.employees[index].managerId = this.employeeForm.value.managerId;
       this.employees[index].managerName = this.managers.find(x => x.id == this.employeeForm.value.managerId)?.name;
       this.employees[index].isActive = this.employeeForm.value.isActive;
-            // click close button => Dialog Close
+      // click close button => Dialog Close
       this.closeModal?.nativeElement.click();
       this.resetForm();
     }
@@ -191,12 +257,12 @@ export class EmployeesComponent {
     }
   }
 
-  removeEmployee(id : number){
+  removeEmployee(id: number) {
     let index = this.employees.findIndex(x => x.id == id);
     this.employees.splice(index, 1);
   }
 
-  changePage(pageNumber : number){
+  changePage(pageNumber: number) {
     this.paginationConfig.currentPage = pageNumber;
   }
 }
