@@ -19,5 +19,6 @@
         public decimal? Salary { get; set; }
         public string? Email { get; set; }
         public bool IsActive { get; set; }
+        public string? Phone { get; set; }
     }
 }

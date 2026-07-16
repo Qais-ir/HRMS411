@@ -23,7 +23,8 @@ export class EmployeesComponent {
     private _departmentsService: HttpDepartmentsService,
     private _lookupsService: HttpLookupsService
   ) {
-
+    this.loadPositionsList();
+    this.loadEmployees();
   }
 
   // document.getElementById('closeMdoal');
@@ -51,6 +52,12 @@ export class EmployeesComponent {
 
   managers: List[] = [];
 
+  employeeStatus = [
+    {value : null, name: "Select Status"},
+    {value : true, name: "Active"},
+    {value : false, name: "Inactive"},
+  ];
+
   employeeForm: FormGroup = new FormGroup({
     id: new FormControl(null),
     firstName: new FormControl(null, [Validators.required]),
@@ -67,9 +74,15 @@ export class EmployeesComponent {
     isActive: new FormControl(false, [Validators.required]),
   });
 
-  loadSaveDialog() {
+  searchFilterForm: FormGroup = new FormGroup({
+    name: new FormControl(null),
+    positionId: new FormControl(null),
+    status: new FormControl(null)
+  })
+
+  loadSaveDialog(employeeId?: number) {
     this.resetForm();
-    this.loadManagersList();
+    this.loadManagersList(employeeId);
     this.loadDepartmentsList();
     this.loadPositionsList();
   }
@@ -135,7 +148,14 @@ export class EmployeesComponent {
   }
   loadEmployees() {
     this.employees = [];
-    this._employeesService.getByCriteria().subscribe({
+
+    let searchObj = {
+      name: this.searchFilterForm.value.name,
+      positionId:this.searchFilterForm.value.positionId,
+      status: this.searchFilterForm.value.status
+    };
+    
+    this._employeesService.getByCriteria(searchObj).subscribe({
       // Successful : 200
       next: (res: any) => {
         if (res?.length > 0) {
@@ -171,10 +191,8 @@ export class EmployeesComponent {
 
 
   saveEmployee() {
-    // Add Employee
-    if (!this.employeeForm.value.id) {
       let emp: Employee = {
-        id: 0,
+        id: this.employeeForm.value.id ?? 0,
         firstName: this.employeeForm.value.firstName,
         lastName: this.employeeForm.value.lastName,
         email: this.employeeForm.value.email,
@@ -188,6 +206,9 @@ export class EmployeesComponent {
         positionId: this.employeeForm.value.positionId,
         isActive: this.employeeForm.value.isActive
       };
+
+    // Add Employee
+    if (!this.employeeForm.value.id) {
 
       //this.employees.push(emp);
       this._employeesService.add(emp).subscribe({
@@ -206,25 +227,18 @@ export class EmployeesComponent {
     }
     // update employee
     else {
-      let index = this.employees.findIndex(x => x.id == this.employeeForm.value.id); // return index 
-      this.employees[index].firstName = this.employeeForm.value.firstName;
-      this.employees[index].lastName = this.employeeForm.value.lastName;
-      this.employees[index].email = this.employeeForm.value.email;
-      this.employees[index].birthdate = this.employeeForm.value.birthdate;
-      this.employees[index].salary = this.employeeForm.value.salary;
-      this.employees[index].phone = this.employeeForm.value.phone;
-      this.employees[index].startDate = this.employeeForm.value.startDate;
-      this.employees[index].endDate = this.employeeForm.value.endDate;
-      this.employees[index].departmentId = this.employeeForm.value.departmentId;
-      this.employees[index].departmentName = this.departments.find(x => x.id == this.employeeForm.value.departmentId)?.name;
-      this.employees[index].positionId = this.employeeForm.value.positionId;
-      this.employees[index].positionName = this.positions.find(x => x.id == this.employeeForm.value.positionId)?.name ?? "";
-      this.employees[index].managerId = this.employeeForm.value.managerId;
-      this.employees[index].managerName = this.managers.find(x => x.id == this.employeeForm.value.managerId)?.name;
-      this.employees[index].isActive = this.employeeForm.value.isActive;
-      // click close button => Dialog Close
-      this.closeModal?.nativeElement.click();
-      this.resetForm();
+      this._employeesService.update(emp).subscribe({
+        next: res => {
+          this.loadEmployees();
+          this.closeModal?.nativeElement.click();
+          this.resetForm();
+        },
+        // Faild : 404, 400, 500, 401
+        error: err => {
+          console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+        }
+      })
+
     }
 
   }
@@ -236,30 +250,46 @@ export class EmployeesComponent {
   }
 
   loadEmployeeForm(id: number) {
-    let employee = this.employees.find(x => x.id == id);
+    this.loadSaveDialog(id);
 
-    if (employee != null) {
-      this.employeeForm.patchValue({
-        id: employee.id,
-        firstName: employee.firstName,
-        lastName: employee.lastName,
-        email: employee.email,
-        birthdate: this._datePipe.transform(employee.birthdate, 'yyyy-MM-dd'), // yyyy-MM-dd
-        salary: employee.salary,
-        isActive: employee.isActive,
-        startDate: this._datePipe.transform(employee.startDate, 'yyyy-MM-dd'),
-        endDate: this._datePipe.transform(employee.endDate, 'yyyy-MM-dd'),
-        positionId: employee.positionId,
-        departmentId: employee.departmentId,
-        managerId: employee.managerId,
-        phone: employee.phone
-      })
-    }
+    this._employeesService.getById(id).subscribe({
+      next: (employee: any) => {
+        if (employee != null) {
+          this.employeeForm.patchValue({
+            id: employee.id,
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            email: employee.email,
+            birthdate: this._datePipe.transform(employee.birthDate, 'yyyy-MM-dd'), // yyyy-MM-dd
+            salary: employee.salary,
+            isActive: employee.isActive,
+            startDate: this._datePipe.transform(employee.startDate, 'yyyy-MM-dd'),
+            endDate: this._datePipe.transform(employee.endDate, 'yyyy-MM-dd'),
+            positionId: employee.positionId,
+            departmentId: employee.departmentId,
+            managerId: employee.managerId,
+            phone: employee.phone
+          })
+        }
+      },
+      // Faild : 404, 400, 500, 401
+      error: err => {
+        console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+      }
+    })
+
+
   }
 
   removeEmployee(id: number) {
-    let index = this.employees.findIndex(x => x.id == id);
-    this.employees.splice(index, 1);
+    this._employeesService.delete(id).subscribe({
+      next: res => {
+        this.loadEmployees();
+      },
+      error: err => {
+        console.log(err.error.message ?? err.message ?? "Unexpected Http Error");
+      }
+    })
   }
 
   changePage(pageNumber: number) {

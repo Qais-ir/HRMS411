@@ -45,7 +45,8 @@ namespace HRMS.Controllers
                            from man in _dbContext.Employees.Where(x => x.Id == emp.ManagerId).DefaultIfEmpty()
                            from lookup in _dbContext.Lookups.Where(x => x.Id == emp.PositionId).DefaultIfEmpty()
                            where (searchDto.PositionId == null || emp.PositionId == searchDto.PositionId) &&
-                           (searchDto.Name == null || emp.FirstName.ToUpper().Contains(searchDto.Name.ToUpper()))
+                           (searchDto.Name == null || emp.FirstName.ToUpper().Contains(searchDto.Name.ToUpper())) &&
+                           (searchDto.Status == null || searchDto.Status == emp.IsActive)
                            orderby emp.Id descending
                            select new EmployeeDto // DTO : Data Transfer Object
                            {
@@ -108,6 +109,8 @@ namespace HRMS.Controllers
                 var data = _dbContext.Employees.Select(x => new EmployeeDto
                 {
                     Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
                     Name = x.FirstName + " " + x.LastName,
                     PositionId = x.PositionId,
                     PositionName = x.Lookup.Name,
@@ -118,6 +121,11 @@ namespace HRMS.Controllers
                     DepartmentName = x.Department.Name,
                     ManagerId = x.ManagerId,
                     ManagerName = x.Manager.FirstName,
+                    UserId = x.UserId,
+                    Email = x.Email,
+                    IsActive = x.IsActive,
+                    Salary = x.Salary,
+                    Phone = x.PhoneNumber
                 }).FirstOrDefault(x => x.Id == id);
 
                 //var data = _dbContext.Employees.Include(x => x.Department).Include(x => x.Manager).FirstOrDefault(x => x.Id == id);
