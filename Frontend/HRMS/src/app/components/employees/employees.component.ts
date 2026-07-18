@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Employee } from '../../interfaces/employee.interface';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,22 +9,23 @@ import { List } from '../../interfaces/list.interface';
 import { HttpDepartmentsService } from '../../services/http.departments.service';
 import { HttpLookupsService } from '../../services/http.lookups.service';
 import { MajorCodes } from '../../enums/lookup.enum';
+import { ConfirmationDialogComponent } from '../../shared-components/confirmation-dialog/confirmation-dialog.component';
 @Component({
   selector: 'app-employees',
-  imports: [CommonModule, ReactiveFormsModule, NgxPaginationModule],
+  imports: [CommonModule, ReactiveFormsModule, NgxPaginationModule, ConfirmationDialogComponent],
   providers: [DatePipe],
   templateUrl: './employees.component.html',
   styleUrl: './employees.component.css'
 })
-export class EmployeesComponent {
+export class EmployeesComponent implements OnInit{
 
   constructor(private _datePipe: DatePipe,
     private _employeesService: HttpEmployeesService,
     private _departmentsService: HttpDepartmentsService,
     private _lookupsService: HttpLookupsService
   ) {
-    this.loadPositionsList();
-    this.loadEmployees();
+    //this.loadPositionsList();
+    //this.loadEmployees();
   }
 
   // document.getElementById('closeMdoal');
@@ -58,6 +59,12 @@ export class EmployeesComponent {
     {value : false, name: "Inactive"},
   ];
 
+  showConfirmationDialog : boolean = false;
+  idToBeDeleted : number | null = null;
+
+  deleteDialogTitle : string = "Delete Confirmation";
+  deleteDialogBody : string = "Are you sure you want to delete this employee?";
+
   employeeForm: FormGroup = new FormGroup({
     id: new FormControl(null),
     firstName: new FormControl(null, [Validators.required]),
@@ -78,7 +85,13 @@ export class EmployeesComponent {
     name: new FormControl(null),
     positionId: new FormControl(null),
     status: new FormControl(null)
-  })
+  });
+
+
+  ngOnInit(){
+    this.loadPositionsList();
+    this.loadEmployees();
+  }
 
   loadSaveDialog(employeeId?: number) {
     this.resetForm();
@@ -281,8 +294,12 @@ export class EmployeesComponent {
 
   }
 
-  removeEmployee(id: number) {
-    this._employeesService.delete(id).subscribe({
+  removeEmployee() {
+    if(!this.idToBeDeleted){
+      return;
+    }
+    
+    this._employeesService.delete(this.idToBeDeleted).subscribe({
       next: res => {
         this.loadEmployees();
       },
@@ -294,6 +311,32 @@ export class EmployeesComponent {
 
   changePage(pageNumber: number) {
     this.paginationConfig.currentPage = pageNumber;
+  }
+
+  showConfirmDialog(id:number){
+    this.showConfirmationDialog = true;
+    this.idToBeDeleted = id;
+  }
+
+  confirmEmployeeDelete(isConfirmed : boolean){
+    if(isConfirmed){
+      this.removeEmployee();
+    }
+
+    this.idToBeDeleted = null;
+    this.showConfirmationDialog = false;
+  }
+
+  ngAfterViewInit(){
+    debugger;
+  }
+
+  ngAfterViewChecked(){
+     debugger;
+  }
+
+  ngOnDestroy(){
+    debugger;
   }
 }
 

@@ -1,0 +1,21 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-confirmation-dialog',
+  imports: [],
+  templateUrl: './confirmation-dialog.component.html',
+  styleUrl: './confirmation-dialog.component.css'
+})
+export class ConfirmationDialogComponent {
+
+  // Input
+  @Input() title : string = "";
+  @Input() body : string = "";
+
+  // Output => Event : boolean ( Child => Parent)
+  @Output() confirmed = new EventEmitter<boolean>();
+
+  confirmDelete(isConfirmed : boolean){
+    this.confirmed.emit(isConfirmed);
+  }
+}
