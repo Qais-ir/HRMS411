@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace HRMS.Controllers
 {
     // Data Annotations --> Extra Information
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")] // [controller] --> api/Employees
     [ApiController]
     public class EmployeesController : ControllerBase
@@ -150,7 +150,7 @@ namespace HRMS.Controllers
         // Select --> Projection
         // Lazy Loading --> ??
 
-        //[Authorize(Roles = "HR,Admin")]
+        [Authorize(Roles = "HR,Admin")]
         [HttpPost]
         public IActionResult Add([FromBody] SaveEmployeeDto newEmployee)
         {
@@ -197,7 +197,7 @@ namespace HRMS.Controllers
 
 
         }
-        //[Authorize(Roles = "HR,Admin")]
+        [Authorize(Roles = "HR,Admin")]
         [HttpPut]
         public IActionResult Update([FromBody] SaveEmployeeDto updatedEmployee)
         {
@@ -233,7 +233,7 @@ namespace HRMS.Controllers
             }
         }
 
-        // [Authorize(Roles = "HR,Admin")]
+         [Authorize(Roles = "HR,Admin")]
         [HttpDelete("{id}")] // Route Parameter
         public IActionResult Delete(long id)
         {

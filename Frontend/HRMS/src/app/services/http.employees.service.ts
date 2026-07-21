@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Employee } from '../interfaces/employee.interface';
 
@@ -14,6 +14,10 @@ export class HttpEmployeesService {
   ) { }
 
   getByCriteria(searchObj : any){
+
+    // let token = localStorage.getItem("token");
+    // let headers = new HttpHeaders().set("Authorization", `Bearer ${token}`);
+
     let params = new HttpParams();
     params = params.set("PositionId", searchObj.positionId ?? "");
     params = params.set("Name", searchObj.name ?? "");

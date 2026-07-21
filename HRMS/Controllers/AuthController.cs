@@ -42,7 +42,7 @@ namespace HRMS.Controllers
             // Token
             string token = GenerateJwtToken(user);
 
-            return Ok(token);
+            return Ok(new { Token = token});
         }
 
         private string GenerateJwtToken(User user)

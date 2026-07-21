@@ -328,15 +328,15 @@ export class EmployeesComponent implements OnInit{
   }
 
   ngAfterViewInit(){
-    debugger;
+   // debugger;
   }
 
   ngAfterViewChecked(){
-     debugger;
+    // debugger;
   }
 
   ngOnDestroy(){
-    debugger;
+   // debugger;
   }
 }
 

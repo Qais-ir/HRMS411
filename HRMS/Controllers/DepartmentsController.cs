@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DepartmentsController : ControllerBase
@@ -78,7 +78,7 @@ namespace HRMS.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin,HR")] // 403
+        [Authorize(Roles = "Admin,HR")] // 403
         [HttpPost]
         public IActionResult Add([FromBody] SaveDepartmentDto departmentDto)
         {
@@ -105,7 +105,7 @@ namespace HRMS.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin,HR")]
+        [Authorize(Roles = "Admin,HR")]
         [HttpPut]
         public IActionResult Update([FromBody] SaveDepartmentDto departmentDto)
         {
@@ -135,7 +135,7 @@ namespace HRMS.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin,HR")]
+        [Authorize(Roles = "Admin,HR")]
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
