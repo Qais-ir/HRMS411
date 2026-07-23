@@ -70,10 +70,10 @@ namespace HRMS.Controllers
                            };
 
                 // Filteration Based On User Role
-                //if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
-                //{
-                //    data = data.Where(x => x.UserId == long.Parse(userId));
-                //}
+                if (role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    data = data.Where(x => x.UserId == long.Parse(userId));
+                }
 
                 return Ok(data);
             }

@@ -40,27 +40,30 @@ namespace HRMS.Controllers
             }
 
             // Token
-            string token = GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
 
-            return Ok(new { Token = token});
+            return Ok(token);
         }
 
-        private string GenerateJwtToken(User user)
+        private TokenDto GenerateJwtToken(User user)
         {
             // Claims --> User Info
             var claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.NameIdentifier , user.Id.ToString())); // User Id
             claims.Add(new Claim(ClaimTypes.Name, user.Username)); // Username
 
+            string role;
             // Role --> Admin, Hr, Developer
             if (user.IsAdmin)
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                role = "Admin";
             }
             else
             {
                 var employee = _dbContext.Employees.Include(x => x.Lookup).FirstOrDefault(x => x.UserId == user.Id);
                 claims.Add(new Claim(ClaimTypes.Role, employee.Lookup.Name));
+                role = employee.Lookup.Name;
             }
 
 
@@ -81,7 +84,7 @@ namespace HRMS.Controllers
 
             var token = tokenHandler.WriteToken(tokenSettings);
 
-            return token;
+            return new TokenDto { Token = token, Role = role };
         }
     }
 }

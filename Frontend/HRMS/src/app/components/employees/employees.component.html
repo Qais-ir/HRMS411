@@ -57,7 +57,7 @@
       <div>
         <button type="button" class="btn btn-outline-secondary"
           data-bs-toggle="modal" data-bs-target="#saveEmployee"
-          (click)="loadSaveDialog();">
+          (click)="loadSaveDialog();" [disabled]="actionButtonsDisabled">
           <i class="bi bi-person-fill-add"></i>
           Add Employee
         </button>
@@ -96,12 +96,12 @@
             <td>{{employee.managerName}}</td>
             <td>
               <button type="button" class="btn btn-outline-success"
-                (click)="loadEmployeeForm(employee.id)"
+                (click)="loadEmployeeForm(employee.id)"  [disabled]="actionButtonsDisabled"
                 data-bs-toggle="modal" data-bs-target="#saveEmployee">
                 <i class="bi bi-pencil-fill"></i>
               </button>
               <button type="button" class="btn btn-outline-danger ms-2"
-                (click)="showConfirmDialog(employee.id)">
+                (click)="showConfirmDialog(employee.id)"  [disabled]="actionButtonsDisabled">
                 <i class="bi bi-trash3-fill"></i>
               </button>
             </td>

@@ -36,6 +36,7 @@ export class LoginComponent {
       next : (res : any) => {
        // console.log(res.token);
        localStorage.setItem("token", res.token);
+       localStorage.setItem("role", res.role);
        this.showErrorMessage = false;
        this._router.navigate(['/']);
       },

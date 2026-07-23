@@ -64,6 +64,8 @@ export class EmployeesComponent implements OnInit{
 
   deleteDialogTitle : string = "Delete Confirmation";
   deleteDialogBody : string = "Are you sure you want to delete this employee?";
+  actionButtonsDisabled : boolean = false;
+
 
   employeeForm: FormGroup = new FormGroup({
     id: new FormControl(null),
@@ -91,6 +93,7 @@ export class EmployeesComponent implements OnInit{
   ngOnInit(){
     this.loadPositionsList();
     this.loadEmployees();
+    this.checkRole();
   }
 
   loadSaveDialog(employeeId?: number) {
@@ -337,6 +340,14 @@ export class EmployeesComponent implements OnInit{
 
   ngOnDestroy(){
    // debugger;
+  }
+
+  checkRole(){
+    let role = localStorage.getItem("role");
+    if(role?.toUpperCase() != 'ADMIN' && role?.toUpperCase() != 'HR'){
+      // Disable Action Buttons
+      this.actionButtonsDisabled = true;
+    }
   }
 }
 
